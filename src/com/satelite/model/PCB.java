@@ -17,7 +17,8 @@ public class PCB {
     public int mar;
     public int prioridad;
     public int deadline;
-    public int totalInstrucciones; // <--- ASEGÚRATE DE QUE ESTO ESTÉ AQUÍ
+    public int totalInstrucciones;
+    public int instruccionesEjecutadas;
 
     public PCB(int id, String nombre, int prioridad, int deadline) {
         this.id = id;
@@ -27,6 +28,7 @@ public class PCB {
         this.mar = 0;
         this.prioridad = prioridad;
         this.deadline = deadline;
-        this.totalInstrucciones = 0; 
+        this.totalInstrucciones = 0;
+        this.instruccionesEjecutadas = 0;
     }
 }
