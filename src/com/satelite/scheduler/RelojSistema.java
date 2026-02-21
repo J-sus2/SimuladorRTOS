@@ -13,12 +13,13 @@ import com.satelite.gui.VentanaPrincipal;
 import com.satelite.structures.ListaProcesos;
 import com.satelite.model.PCB;
 import com.satelite.structures.Nodo;
+import javax.swing.SwingUtilities;
 
 public class RelojSistema extends Thread {
     private int cicloActual = 0;
-    private int milisegundosPorCiclo = 1000; // 1 segundo por ciclo por defecto
+    private int milisegundosPorCiclo = 1000;
     private boolean ejecutando = true;
-    private VentanaPrincipal ventana; // Para avisarle a la GUI que cambie
+    private VentanaPrincipal ventana;
     private ListaProcesos procesos;
 
     public RelojSistema(VentanaPrincipal ventana, ListaProcesos procesos) {
@@ -30,41 +31,33 @@ public class RelojSistema extends Thread {
     public void run() {
         while (ejecutando) {
             try {
-                // 1. Incrementar el reloj global
                 cicloActual++;
+                actualizarProcesosEnEjecucion();
 
-                // 2. Simular ejecución (incrementar PC y MAR de los procesos en ejecución)
-                actualizarProcesos();
-
-                // 3. Actualizar la interfaz gráfica
-                // Usamos SwingUtilities para que sea seguro actualizar la tabla desde otro hilo
-                javax.swing.SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(() -> {
                     ventana.actualizarInterfaz(cicloActual);
                 });
 
-                // 4. Pausa según la velocidad configurada
                 Thread.sleep(milisegundosPorCiclo);
-                
             } catch (InterruptedException e) {
                 ejecutando = false;
             }
         }
     }
 
-    private void actualizarProcesos() {
+    private void actualizarProcesosEnEjecucion() {
         Nodo actual = procesos.getCabeza();
         while (actual != null) {
             PCB p = actual.proceso;
-            // Solo incrementamos PC y MAR si el proceso está en "Ejecución"
             if (p.estado.equals("Ejecucion")) {
                 p.pc++;
                 p.mar++;
+                p.instruccionesEjecutadas++;
+                if (p.instruccionesEjecutadas >= p.totalInstrucciones) {
+                    p.estado = "Terminado";
+                }
             }
             actual = actual.siguiente;
         }
-    }
-
-    public void setVelocidad(int ms) {
-        this.milisegundosPorCiclo = ms;
     }
 }
