@@ -47,4 +47,42 @@ public class Planificador {
             candidato.estado = EstadoProceso.EJECUCION;
         }
     }
+    
+    public static void gestionarMemoria(ListaProcesos procesos) {
+        int procesosEnRAM = 0;
+        Nodo actual = procesos.getCabeza();
+
+        // 1. Contar cuántos procesos están ocupando "RAM"
+        while (actual != null) {
+            if (actual.proceso.estado == EstadoProceso.LISTO || 
+                actual.proceso.estado == EstadoProceso.EJECUCION || 
+                actual.proceso.estado == EstadoProceso.BLOQUEADO) {
+                procesosEnRAM++;
+            }
+            actual = actual.siguiente;
+        }
+
+        // 2. Si hay saturación, buscamos al menos crítico para suspenderlo
+        if (procesosEnRAM > 10) { // Supongamos 10 como límite
+            PCB menosCritico = null;
+            int mayorDeadline = -1;
+
+            actual = procesos.getCabeza();
+            while (actual != null) {
+                // Solo suspendemos los que están en LISTO (no el que está en CPU)
+                if (actual.proceso.estado == EstadoProceso.LISTO) {
+                    if (actual.proceso.deadline > mayorDeadline) {
+                        mayorDeadline = actual.proceso.deadline;
+                        menosCritico = actual.proceso;
+                    }
+                }
+                actual = actual.siguiente;
+            }
+
+            if (menosCritico != null) {
+                menosCritico.estado = EstadoProceso.LISTO_SUSPENDIDO;
+                System.out.println("MEMORIA SATURADA: Suspendiendo " + menosCritico.nombre);
+            }
+        }
+    }
 }
