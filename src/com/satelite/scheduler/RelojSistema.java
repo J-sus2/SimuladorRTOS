@@ -32,6 +32,11 @@ public class RelojSistema extends Thread {
         while (ejecutando) {
             try {
                 cicloActual++;
+
+                // 1. El planificador elige quién debe correr
+                Planificador.aplicarEDF(procesos); 
+
+                // 2. Se ejecuta el trabajo y se bajan los deadlines
                 actualizarProcesosEnEjecucion();
 
                 SwingUtilities.invokeLater(() -> {
