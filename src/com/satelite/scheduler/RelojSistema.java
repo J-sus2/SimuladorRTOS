@@ -33,10 +33,17 @@ public class RelojSistema extends Thread {
             try {
                 cicloActual++;
 
-                // 1. El planificador elige quién debe correr
+                // ORDEN DE OPERACIONES:
+                // 1. Manejar los que están esperando E/S
+                Planificador.gestionarBloqueados(procesos);
+
+                // 2. Revisar si hay que suspender procesos por falta de RAM
+                Planificador.gestionarMemoria(procesos);
+
+                // 3. Elegir quién usa la CPU (Algoritmo EDF)
                 Planificador.aplicarEDF(procesos); 
 
-                // 2. Se ejecuta el trabajo y se bajan los deadlines
+                // 4. Ejecutar físicamente el proceso en CPU
                 actualizarProcesosEnEjecucion();
 
                 SwingUtilities.invokeLater(() -> {
