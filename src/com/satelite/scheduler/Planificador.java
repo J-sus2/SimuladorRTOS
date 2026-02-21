@@ -85,4 +85,19 @@ public class Planificador {
             }
         }
     }
+    
+    public static void gestionarBloqueados(ListaProcesos procesos) {
+        Nodo actual = procesos.getCabeza();
+        while (actual != null) {
+            if (actual.proceso.estado == EstadoProceso.BLOQUEADO) {
+                actual.proceso.ciclosBloqueadoRestantes--;
+
+                // Si ya terminó su espera, vuelve a LISTO
+                if (actual.proceso.ciclosBloqueadoRestantes <= 0) {
+                    actual.proceso.estado = EstadoProceso.LISTO;
+                }
+            }
+            actual = actual.siguiente;
+        }
+    }
 }
